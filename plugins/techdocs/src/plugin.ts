@@ -33,6 +33,11 @@ import {
   fetchApiRef,
   identityApiRef,
 } from '@backstage/core-plugin-api';
+import {
+  TechDocsSearchResultListItem,
+  TechDocsSearchResultListItemProps,
+} from './search';
+import { createSearchResultListItemExtension } from '@backstage/plugin-search-react';
 
 /**
  * The Backstage plugin that renders technical documentation for your components
@@ -151,5 +156,13 @@ export const TechDocsReaderPage = techdocsPlugin.provide(
         m => m.TechDocsReaderPage,
       ),
     mountPoint: rootDocsRouteRef,
+  }),
+);
+
+export const TechDocsSearchResultListItemExtension = techdocsPlugin.provide(
+  createSearchResultListItemExtension<TechDocsSearchResultListItemProps>({
+    name: 'TechDocsSearchResultListItem',
+    component: TechDocsSearchResultListItem,
+    predicate: result => result.type === 'techdocs',
   }),
 );

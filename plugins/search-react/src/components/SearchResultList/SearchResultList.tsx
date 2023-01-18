@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import React, { ReactNode } from 'react';
+import React, { Fragment, ReactNode } from 'react';
 
 import { List, ListItem, ListProps } from '@material-ui/core';
 
@@ -28,6 +28,7 @@ import { SearchQuery, SearchResult } from '@backstage/plugin-search-common';
 
 import { DefaultResultListItem } from '../DefaultResultListItem';
 import { SearchResultState } from '../SearchResult';
+import { useSearchResultListItemExtensionRenderer } from '../../extension';
 
 /**
  * Props for {@link SearchResultListLayout}
@@ -82,21 +83,28 @@ export const SearchResultListLayout = (props: SearchResultListLayoutProps) => {
     ...rest
   } = props;
 
+  if (loading) {
+    return <Progress />;
+  }
+
+  if (error) {
+    <ResponseErrorPanel
+      title="Error encountered while fetching search results"
+      error={error}
+    />;
+  }
+
   return (
     <List {...rest}>
-      {loading ? <Progress /> : null}
-      {!loading && error ? (
-        <ResponseErrorPanel
-          title="Error encountered while fetching search results"
-          error={error}
-        />
-      ) : null}
-      {!loading && !error && resultItems?.length
-        ? resultItems.map(renderResultItem)
-        : null}
-      {!loading && !error && !resultItems?.length ? (
+      {resultItems?.length ? (
+        resultItems.map((value, index, array) => (
+          <Fragment key={index}>
+            {renderResultItem(value, index, array)}
+          </Fragment>
+        ))
+      ) : (
         <ListItem>{noResultsComponent}</ListItem>
-      ) : null}
+      )}
     </List>
   );
 };
@@ -112,7 +120,7 @@ export type SearchResultListProps = Omit<
   /**
    * A search query used for requesting the results to be listed.
    */
-  query: Partial<SearchQuery>;
+  query?: Partial<SearchQuery>;
   /**
    * Optional property to provide if component should not render the component when no results are found.
    */
@@ -125,7 +133,16 @@ export type SearchResultListProps = Omit<
  * @public
  */
 export const SearchResultList = (props: SearchResultListProps) => {
-  const { query, disableRenderingWithNoResults, ...rest } = props;
+  const {
+    query,
+    children,
+    renderResultItem,
+    disableRenderingWithNoResults,
+    ...rest
+  } = props;
+
+  const defaultRenderResultItem =
+    useSearchResultListItemExtensionRenderer(children);
 
   return (
     <AnalyticsContext
@@ -146,6 +163,7 @@ export const SearchResultList = (props: SearchResultListProps) => {
               loading={loading}
               error={error}
               resultItems={value?.results}
+              renderResultItem={renderResultItem ?? defaultRenderResultItem}
             />
           );
         }}

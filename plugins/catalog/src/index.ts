@@ -53,6 +53,7 @@ export {
   EntityLinksCard,
   EntityLabelsCard,
   RelatedEntitiesCard,
+  CatalogSearchResultListItemExtension,
 } from './plugin';
 
 export type { DependencyOfComponentsCardProps } from './components/DependencyOfComponentsCard';

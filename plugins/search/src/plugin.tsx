@@ -15,7 +15,12 @@
  */
 
 import { SearchClient } from './apis';
-import { searchApiRef } from '@backstage/plugin-search-react';
+import {
+  searchApiRef,
+  createSearchResultListItemExtension,
+  DefaultResultListItem,
+  DefaultResultListItemProps,
+} from '@backstage/plugin-search-react';
 import {
   createApiFactory,
   createPlugin,
@@ -85,5 +90,12 @@ export const HomePageSearchBar = searchPlugin.provide(
       lazy: () =>
         import('./components/HomePageComponent').then(m => m.HomePageSearchBar),
     },
+  }),
+);
+
+export const DefaultResultListItemExtension = searchPlugin.provide(
+  createSearchResultListItemExtension<DefaultResultListItemProps>({
+    name: 'DefaultResultListItem',
+    component: DefaultResultListItem,
   }),
 );

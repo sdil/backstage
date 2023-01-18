@@ -23,25 +23,24 @@ import {
   useSidebarPinState,
 } from '@backstage/core-components';
 import { useApi } from '@backstage/core-plugin-api';
-import { CatalogSearchResultListItem } from '@internal/plugin-catalog-customized';
+import { CatalogSearchResultListItemExtension } from '@internal/plugin-catalog-customized';
 import {
   catalogApiRef,
   CATALOG_FILTER_EXISTS,
 } from '@backstage/plugin-catalog-react';
 import { SearchType } from '@backstage/plugin-search';
 import {
-  DefaultResultListItem,
   SearchBar,
   SearchFilter,
-  SearchResult,
   SearchPagination,
+  SearchResult,
   SearchResultPager,
   useSearch,
 } from '@backstage/plugin-search-react';
-import { TechDocsSearchResultListItem } from '@backstage/plugin-techdocs';
-import { Grid, List, makeStyles, Paper, Theme } from '@material-ui/core';
+import { TechDocsSearchResultListItemExtension } from '@backstage/plugin-techdocs';
+import { Grid, makeStyles, Paper, Theme } from '@material-ui/core';
 import React from 'react';
-import { ToolSearchResultListItem } from '@backstage/plugin-explore';
+import { ToolSearchResultListItemExtension } from '@backstage/plugin-explore';
 import BuildIcon from '@material-ui/icons/Build';
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -133,53 +132,9 @@ const SearchPage = () => {
           <Grid item xs>
             <SearchPagination />
             <SearchResult>
-              {({ results }) => (
-                <List>
-                  {results.map(({ type, document, highlight, rank }) => {
-                    switch (type) {
-                      case 'software-catalog':
-                        return (
-                          <CatalogSearchResultListItem
-                            icon={<CatalogIcon />}
-                            key={document.location}
-                            result={document}
-                            highlight={highlight}
-                            rank={rank}
-                          />
-                        );
-                      case 'techdocs':
-                        return (
-                          <TechDocsSearchResultListItem
-                            icon={<DocsIcon />}
-                            key={document.location}
-                            result={document}
-                            highlight={highlight}
-                            rank={rank}
-                          />
-                        );
-                      case 'tools':
-                        return (
-                          <ToolSearchResultListItem
-                            icon={<BuildIcon />}
-                            key={document.location}
-                            result={document}
-                            highlight={highlight}
-                            rank={rank}
-                          />
-                        );
-                      default:
-                        return (
-                          <DefaultResultListItem
-                            key={document.location}
-                            result={document}
-                            highlight={highlight}
-                            rank={rank}
-                          />
-                        );
-                    }
-                  })}
-                </List>
-              )}
+              <CatalogSearchResultListItemExtension icon={<CatalogIcon />} />
+              <TechDocsSearchResultListItemExtension icon={<DocsIcon />} />
+              <ToolSearchResultListItemExtension icon={<BuildIcon />} />
             </SearchResult>
             <SearchResultPager />
           </Grid>

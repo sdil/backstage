@@ -37,6 +37,7 @@ export {
   TechDocsIndexPage,
   TechdocsPage,
   TechDocsReaderPage,
+  TechDocsSearchResultListItemExtension,
   techdocsPlugin as plugin,
   techdocsPlugin,
 } from './plugin';

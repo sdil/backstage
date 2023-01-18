@@ -16,6 +16,7 @@
 
 import React, {
   ChangeEvent,
+  Fragment,
   PropsWithChildren,
   ReactNode,
   useCallback,
@@ -54,6 +55,7 @@ import { SearchQuery, SearchResult } from '@backstage/plugin-search-common';
 
 import { DefaultResultListItem } from '../DefaultResultListItem';
 import { SearchResultState } from '../SearchResult';
+import { useSearchResultListItemExtensionRenderer } from '../../extension';
 
 const useStyles = makeStyles((theme: Theme) => ({
   listSubheader: {
@@ -398,6 +400,17 @@ export function SearchResultGroupLayout<FilterOption>(
     setAnchorEl(null);
   }, []);
 
+  if (loading) {
+    return <Progress />;
+  }
+
+  if (error) {
+    <ResponseErrorPanel
+      title="Error encountered while fetching search results"
+      error={error}
+    />;
+  }
+
   return (
     <List {...rest}>
       <ListSubheader className={classes.listSubheader}>
@@ -440,19 +453,15 @@ export function SearchResultGroupLayout<FilterOption>(
           {link}
         </Link>
       </ListSubheader>
-      {loading ? <Progress /> : null}
-      {!loading && error ? (
-        <ResponseErrorPanel
-          title="Error encountered while fetching search results"
-          error={error}
-        />
-      ) : null}
-      {!loading && !error && resultItems?.length
-        ? resultItems.map(renderResultItem)
-        : null}
-      {!loading && !error && !resultItems?.length ? (
+      {resultItems?.length ? (
+        resultItems.map((value, index, array) => (
+          <Fragment key={index}>
+            {renderResultItem(value, index, array)}
+          </Fragment>
+        ))
+      ) : (
         <ListItem>{noResultsComponent}</ListItem>
-      ) : null}
+      )}
     </List>
   );
 }
@@ -468,7 +477,7 @@ export type SearchResultGroupProps<FilterOption> = Omit<
   /**
    * A search query used for requesting the results to be grouped.
    */
-  query: Partial<SearchQuery>;
+  query?: Partial<SearchQuery>;
   /**
    * Optional property to provide if component should not render the group when no results are found.
    */
@@ -485,20 +494,25 @@ export function SearchResultGroup<FilterOption>(
 ) {
   const {
     query,
+    children,
     linkProps = {},
     disableRenderingWithNoResults,
+    renderResultItem,
     ...rest
   } = props;
 
   const to = `/search?${qs.stringify(
     {
-      query: query.term,
-      types: query.types,
-      filters: query.filters,
-      pageCursor: query.pageCursor,
+      query: query?.term,
+      types: query?.types,
+      filters: query?.filters,
+      pageCursor: query?.pageCursor,
     },
     { arrayFormat: 'brackets' },
   )}`;
+
+  const defaultRenderResultItem =
+    useSearchResultListItemExtensionRenderer(children);
 
   return (
     <AnalyticsContext
@@ -519,8 +533,9 @@ export function SearchResultGroup<FilterOption>(
               loading={loading}
               error={error}
               linkProps={{ to, ...linkProps }}
+              filterFields={Object.keys(query?.filters ?? {})}
               resultItems={value?.results}
-              filterFields={Object.keys(query.filters ?? {})}
+              renderResultItem={renderResultItem ?? defaultRenderResultItem}
             />
           );
         }}

@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
-import React from 'react';
+import React, { Fragment } from 'react';
 import useAsync, { AsyncState } from 'react-use/lib/useAsync';
+
+import { List, ListProps } from '@material-ui/core';
 
 import {
   EmptyState,
@@ -25,8 +27,9 @@ import {
 import { AnalyticsContext, useApi } from '@backstage/core-plugin-api';
 import { SearchQuery, SearchResultSet } from '@backstage/plugin-search-common';
 
-import { useSearch } from '../../context';
 import { searchApiRef } from '../../api';
+import { useSearch } from '../../context';
+import { useSearchResultListItemExtensionRenderer } from '../../extension';
 
 /**
  * Props for {@link SearchResultContext}
@@ -165,10 +168,13 @@ export const SearchResultState = (props: SearchResultStateProps) => {
  * Props for {@link SearchResult}
  * @public
  */
-export type SearchResultProps = Pick<SearchResultStateProps, 'query'> & {
-  children: (resultSet: SearchResultSet) => JSX.Element;
-  noResultsComponent?: JSX.Element;
-};
+export type SearchResultProps = ListProps &
+  Pick<SearchResultStateProps, 'query'> & {
+    noResultsComponent?: JSX.Element;
+  } & (
+    | { children: (resultSet: SearchResultSet) => JSX.Element }
+    | { children?: null | JSX.Element | JSX.Element[] }
+  );
 
 /**
  * Renders results from a parent search context or api.
@@ -183,7 +189,10 @@ export const SearchResultComponent = (props: SearchResultProps) => {
     noResultsComponent = (
       <EmptyState missing="data" title="Sorry, no results were found" />
     ),
+    ...rest
   } = props;
+
+  const renderResultItem = useSearchResultListItemExtensionRenderer(children);
 
   return (
     <SearchResultState query={query}>
@@ -205,7 +214,17 @@ export const SearchResultComponent = (props: SearchResultProps) => {
           return noResultsComponent;
         }
 
-        return children(value);
+        if (typeof children === 'function') {
+          return children(value);
+        }
+
+        return (
+          <List {...rest}>
+            {value.results.map((result, index) => (
+              <Fragment key={index}>{renderResultItem(result)}</Fragment>
+            ))}
+          </List>
+        );
       }}
     </SearchResultState>
   );

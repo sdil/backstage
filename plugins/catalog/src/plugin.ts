@@ -42,8 +42,13 @@ import { HasResourcesCardProps } from './components/HasResourcesCard';
 import { HasSubcomponentsCardProps } from './components/HasSubcomponentsCard';
 import { HasSystemsCardProps } from './components/HasSystemsCard';
 import { RelatedEntitiesCardProps } from './components/RelatedEntitiesCard';
+import {
+  CatalogSearchResultListItem,
+  CatalogSearchResultListItemProps,
+} from './components/CatalogSearchResultListItem';
 import { rootRouteRef } from './routes';
 import { CatalogInputPluginOptions, CatalogPluginOptions } from './options';
+import { createSearchResultListItemExtension } from '@backstage/plugin-search-react';
 
 /** @public */
 export const catalogPlugin = createPlugin({
@@ -247,5 +252,13 @@ export const RelatedEntitiesCard: <T extends Entity>(
           m => m.RelatedEntitiesCard,
         ),
     },
+  }),
+);
+
+export const CatalogSearchResultListItemExtension = catalogPlugin.provide(
+  createSearchResultListItemExtension<CatalogSearchResultListItemProps>({
+    name: 'CatalogSearchResultListItem',
+    component: CatalogSearchResultListItem,
+    predicate: result => result.type === 'software-catalog',
   }),
 );
