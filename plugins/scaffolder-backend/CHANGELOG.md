@@ -1,5 +1,21 @@
 # @backstage/plugin-scaffolder-backend
 
+## 1.11.0-next.0
+
+### Minor Changes
+
+- 0b2952ee4b: Added the option to overwrite files in the `targetPath` of the `template:fetch` action
+
+### Patch Changes
+
+- Updated dependencies
+  - @backstage/backend-common@0.18.2-next.0
+  - @backstage/backend-tasks@0.4.3-next.0
+  - @backstage/plugin-auth-node@0.2.11-next.0
+  - @backstage/plugin-catalog-backend@1.7.2-next.0
+  - @backstage/plugin-catalog-node@1.3.3-next.0
+  - @backstage/backend-plugin-api@0.3.2-next.0
+
 ## 1.10.0
 
 ### Minor Changes
